@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Simples</title>
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+    
+    <header id="header">
+        <h1>CRUD Simples</h1>
+    </header>
+
+    <main>
+        
+        <section id="crudSection">
+            <h2>Operações de CRUD</h2>
+
+            <!-- Campo de input para adicionar um novo item -->
+            <input type="text" id="newItemInput" placeholder="Digite um nome...">
+            <button id="addItemButton">Adicionar Item</button>
+
+            <h3>Lista de Itens</h3>
+            <ul id="itemList"></ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 CRUD Simples</p>
+    </footer>
+
+    <script>
+        const API_URL = 'http://demo2705853.mockable.io/resultados'; 
+        let items = []; 
+
+        function fetchData() {
+            fetch(API_URL)
+                .then(response => response.json())
+                .then(data => {
+                    items = data;
+                    displayItems(); 
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar os dados:', error);
+                });
+        }
+
+        
+        function displayItems() {
+            const itemList = document.getElementById('itemList');
+            itemList.innerHTML = ''; 
+
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item.nome;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Remover';
+                deleteButton.classList.add('deleteButton');
+                deleteButton.addEventListener('click', function() {
+                    deleteItem(item); 
+                });
+
+               
+                li.appendChild(deleteButton);
+                itemList.appendChild(li);
+            });
+        }
+
+        
+        document.getElementById('addItemButton').addEventListener('click', function() {
+            const newItemInput = document.getElementById('newItemInput');
+            const itemText = newItemInput.value.trim();
+
+            if (itemText) {
+                const newItem = { nome: itemText };
+                addItem(newItem); 
+            } else {
+                alert("Por favor, insira um nome.");
+            }
+
+            newItemInput.value = ''; 
+        });
+
+        
+        function addItem(item) {
+            items.push(item);
+            displayItems(); 
+
+          
+            fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(item)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Item adicionado:', data);
+            })
+            .catch(error => {
+                console.error('Erro ao adicionar item:', error);
+            });
+        }
+
+       
+        function deleteItem(item) {
+           
+            items = items.filter(i => i !== item); 
+
+           
+            fetch(API_URL, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(item) 
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Item deletado com sucesso.');
+                } else {
+                    console.error('Erro ao deletar o item.');
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao deletar item:', error);
+            });
+
+            displayItems(); 
+        }
+
+        fetchData();
+    </script>
+</body>
+</html>

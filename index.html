@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Página Simples</title>
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header id="header">
+        <h1>Ex - 01 - Microservice</h1>
+    </header>
+
+    <main>
+        <section id="home">
+            <h2>Bem-vindo à Página Inicial</h2>
+
+            <section id="itemListSection">
+                <h3>Lista de Itens</h3>
+                <input type="text" id="itemInput" placeholder="Digite um item...">
+                <button id="addItemButton">Adicionar Item</button>
+                <ul id="itemList"></ul>
+            </section>
+
+            
+            <button id="filterButton">Filtrar Pessoas Acima de 18 Anos</button>
+            <button id="resetFilterButton">Resetar Filtro</button>
+
+            
+            <button id="changeColorButton">Mudar Cor do Cabeçalho</button>
+            <button id="testApiButton">Testar Conexão com a API</button>
+
+            
+            <section id="apiMessageSection">
+                <h2>Mensagem da API</h2>
+                <div id="apiMessage"></div>
+            </section>
+
+            
+            <section id="dataTableSection">
+                <h2>Dados da API</h2>
+                <button id="fetchDataButton">Carregar Dados</button>
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>E-mail</th>
+                            <th>Idade</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataBody">
+                        
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+
+    <!-- Rodapé -->
+    <footer>
+        <p>&copy; 2025 Todos os direitos reservados</p>
+    </footer>
+
+    <script>
+        
+        let allData = [];
+
+        
+        document.getElementById("fetchDataButton").addEventListener("click", function() {
+            fetch('http://demo2705853.mockable.io/resultados') 
+                .then(response => response.json())
+                .then(data => {
+                    allData = data;  
+                    displayData(allData);  
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar os dados:', error);
+                });
+        });
+
+        
+        function displayData(data) {
+            const tbody = document.getElementById("dataBody");
+            tbody.innerHTML = ''; 
+
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.nome}</td>
+                    <td>${item.email}</td>
+                    <td>${item.idade}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+       
+        document.getElementById("filterButton").addEventListener("click", function() {
+            const filteredData = allData.filter(item => item.idade > 18);
+            displayData(filteredData);  
+        });
+
+        
+        document.getElementById("resetFilterButton").addEventListener("click", function() {
+            displayData(allData);  
+        });
+
+        
+        document.getElementById("testApiButton").addEventListener("click", function() {
+            fetch('http://demo2705853.mockable.io/') 
+                .then(response => response.json())
+                .then(data => {
+                    const messageElement = document.getElementById('apiMessage');
+                    messageElement.textContent = data.mensagem;
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar a mensagem:', error);
+                    const messageElement = document.getElementById('apiMessage');
+                    messageElement.textContent = 'Erro ao carregar a mensagem da API.';
+                });
+        });
+
+       
+        document.getElementById("changeColorButton").addEventListener("click", function() {
+            const header = document.getElementById("header");
+            
+            const randomColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
+            header.style.backgroundColor = randomColor;
+        });
+
+        
+        document.getElementById("addItemButton").addEventListener("click", function() {
+            const itemInput = document.getElementById("itemInput");
+            const itemText = itemInput.value.trim();
+
+            if (itemText) {
+                const li = document.createElement("li");
+                li.textContent = itemText;
+
+              
+                li.addEventListener("dblclick", function() {
+                    li.remove();
+                });
+
+                document.getElementById("itemList").appendChild(li);
+                itemInput.value = ''; 
+            } else {
+                alert("Por favor, digite um item.");
+            }
+        });
+    </script>
+</body>
+</html>
